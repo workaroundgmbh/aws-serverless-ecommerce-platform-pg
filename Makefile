@@ -210,3 +210,7 @@ bootstrap-pipeline:
 	@echo "[*] seed repository"
 	@git remote add aws $(shell aws ssm get-parameter --name /ecommerce/pipeline/repository/url | jq -r '.Parameter.Value')
 	@git push aws HEAD:main
+
+setup-pycharm:
+	@echo "[*] creating pycharm run-configurations"
+	tools/pycharm_run_configspip

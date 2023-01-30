@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+set -e
+
+run_config_dir="./.run/"
+
+if [ ! -d $run_config_dir ]; then
+  mkdir $run_config_dir
+fi
+
+for SERVICE in $(tools/services)
+do
+  echo "making build-config for $SERVICE"
+  cat > $run_config_dir/build_$SERVICE.run.xml <<HERE
+  <component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="build-$SERVICE" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile" activateToolWindowBeforeRun="false">
+    <makefile filename="Makefile" target="build-$SERVICE" workingDirectory="\$PROJECT_DIR\$/" arguments="">
+      <envs>
+        <env name="ACCOUNT_ID" value="$ACCOUNT_ID" />
+      </envs>
+    </makefile>
+    <method v="2" />
+  </configuration>
+</component>
+HERE
+  echo "making pytest config for $SERVICE"
+  cat > $run_config_dir/unittest_$SERVICE.run.xml <<HERE
+  <component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="pytest - $SERVICE" type="tests" factoryName="py.test">
+    <!-- set this to the relevant project -->
+    <module name="aws-serverless-ecommerce-platform-pg" />
+    <option name="INTERPRETER_OPTIONS" value="" />
+    <option name="PARENT_ENVS" value="true" />
+    <envs>
+      <!-- set this to the relevant directories you need to include -->
+      <env name="PYTHONPATH" value="./shared/tests/unit:./shared/src/ecom:./shared/src/test" />
+      <env name="AWS_DEFAULT_REGION" value="eu-west-1" />
+      <env name="AWS_ACCESS_KEY_ID" value="fake" />
+      <env name="AWS_SECRET_ACCESS_KEY" value="fake" />
+      <!-- set this to the relevant directories you need to include -->
+      <env name="ECOM_BUILD_DIR" value="./$SERVICE/build/" />
+    </envs>
+    <!-- set this to the relevant project -->
+    <option name="WORKING_DIRECTORY" value="\$PROJECT_DIR\$/" />
+    <option name="IS_MODULE_SDK" value="true" />
+    <option name="ADD_CONTENT_ROOTS" value="false" />
+    <option name="ADD_SOURCE_ROOTS" value="false" />
+    <option name="_new_keywords" value="&quot;&quot;" />
+    <option name="_new_parameters" value="&quot;--no-cov&quot;" />
+    <option name="_new_additionalArguments" value="&quot;&quot;" />
+    <option name="_new_target" value="&quot;$SERVICE/tests/unit/&quot;" />
+    <option name="_new_targetType" value="&quot;PATH&quot;" />
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="build-$SERVICE" run_configuration_type="MAKEFILE_TARGET_RUN_CONFIGURATION" />
+    </method>
+  </configuration>
+  </component>
+HERE
+done
+echo "PyCharm run configs have been created. You might have to restart PyCharm for this to take effect."

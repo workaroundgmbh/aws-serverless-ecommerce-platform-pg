@@ -298,6 +298,7 @@ reports
 
 # Ignore IDEs
 .idea
+.run
 
 # Ignore VS Code
 .vscode
